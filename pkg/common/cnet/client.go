@@ -43,6 +43,11 @@ func (c *Client) SetHeaders(headers map[string]string) *Client {
 	return c
 }
 
+func (c *Client) SetTimeout(timeout time.Duration) *Client {
+	c.httpClient.Timeout = timeout
+	return c
+}
+
 func New() *Client {
 	return createClient(&http.Client{})
 }

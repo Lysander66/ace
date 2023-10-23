@@ -20,7 +20,7 @@ import (
 func main() {
 	slog.SetDefault(logger.New(slog.LevelInfo))
 
-	gin.SetMode(gin.ReleaseMode)
+	gin.SetMode(gin.DebugMode)
 	g := gin.New()
 	pprof.Register(g)
 	g.Use(cors.Default(), gin.Logger(), gin.Recovery())
