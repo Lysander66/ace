@@ -10,6 +10,10 @@ import (
 )
 
 func New(level slog.Leveler) *slog.Logger {
+	return NewWithProjectDir(level, "ace/")
+}
+
+func NewWithProjectDir(level slog.Leveler, projectDir string) *slog.Logger {
 	replace := func(groups []string, a slog.Attr) slog.Attr {
 		// Remove time.
 		if a.Key == slog.TimeKey && len(groups) == 0 {
@@ -18,8 +22,8 @@ func New(level slog.Leveler) *slog.Logger {
 		// Remove the directory from the source's filename.
 		if a.Key == slog.SourceKey {
 			source := a.Value.Any().(*slog.Source)
-			if index := strings.Index(source.File, "ulive/"); index != -1 {
-				source.File = source.File[index+6:]
+			if index := strings.Index(source.File, projectDir); index != -1 {
+				source.File = source.File[index+len(projectDir):]
 			} else {
 				source.File = filepath.Base(source.File)
 			}

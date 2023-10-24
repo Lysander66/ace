@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.2 / 2023-10-24
+
+- [CHANGE] logger
+
 ## 0.2.1 / 2023-10-24
 
 - [FEATURE] HLS PullSession
