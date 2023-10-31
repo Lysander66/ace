@@ -47,11 +47,18 @@ func NewPublisher(ctx context.Context, session logic.ICustomizePubSessionContext
 				aacPacket := base.AvPacket{
 					Timestamp:   preAudioDts,
 					PayloadType: base.AvPacketPtAac,
+					Pts:         preAudioDts,
 				}
-				payload := frame[aac.AdtsHeaderLength:ctx.AdtsLength]
-				frame = frame[ctx.AdtsLength:]
-				aacPacket.Payload = payload
-				session.FeedAvPacket(aacPacket)
+				if len(frame) >= int(ctx.AdtsLength) {
+					Payload := frame[aac.AdtsHeaderLength:ctx.AdtsLength]
+					if len(frame) > int(ctx.AdtsLength) {
+						frame = frame[ctx.AdtsLength:]
+					} else {
+						frame = frame[0:0]
+					}
+					aacPacket.Payload = Payload
+					session.FeedAvPacket(aacPacket)
+				}
 			}
 
 		case mpeg2.TS_STREAM_H264:

@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.4 / 2023-10-31
+
+- [ENHANCEMENT] Adts Length
+
 ## 0.2.3 / 2023-10-25
 
 - [ENHANCEMENT] Calc audio dts
