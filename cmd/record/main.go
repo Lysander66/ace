@@ -12,7 +12,7 @@ import (
 	"github.com/Lysander66/ace/pkg/common/cnet"
 	"github.com/Lysander66/ace/pkg/hls"
 	"github.com/Lysander66/ace/pkg/logger"
-	"github.com/bluenviron/gohlslib/pkg/playlist"
+	"github.com/Lysander66/ace/pkg/playlist"
 	"github.com/cheggaaa/pb/v3"
 )
 

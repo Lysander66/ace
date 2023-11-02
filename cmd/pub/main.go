@@ -6,7 +6,7 @@ import (
 
 	"github.com/Lysander66/ace/pkg/hls"
 	"github.com/Lysander66/ace/pkg/logger"
-	"github.com/bluenviron/gohlslib/pkg/playlist"
+	"github.com/Lysander66/ace/pkg/playlist"
 	"github.com/q191201771/lal/pkg/base"
 	"github.com/q191201771/lal/pkg/logic"
 )

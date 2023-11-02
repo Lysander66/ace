@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/bluenviron/gohlslib/pkg/playlist"
+	"github.com/Lysander66/ace/pkg/playlist"
 )
 
 func pickLeadingPlaylist(variants []*playlist.MultivariantVariant) *playlist.MultivariantVariant {

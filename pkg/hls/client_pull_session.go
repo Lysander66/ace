@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/Lysander66/ace/pkg/common/cnet"
-	"github.com/bluenviron/gohlslib/pkg/playlist"
+	"github.com/Lysander66/ace/pkg/playlist"
 )
 
 var errInvalidPlaylist = fmt.Errorf("invalid playlist")

@@ -34,14 +34,11 @@ func Events(c *gin.Context) {
 
 var events = []*Event{
 	{
-		Title:           "Reading",
-		Start:           "2023-10-11 21:56:07",
-		End:             "2023-10-11 22:56:07",
-		BackgroundColor: "green",
+		Title: "Reading", BackgroundColor: "green",
+		Start: "2023-10-11 21:56:07", End: "2023-10-11 22:56:07",
 	},
 	{
 		Title: "Running",
-		Start: "2023-10-12 11:00",
-		End:   "2023-10-12 12:00",
+		Start: "2023-10-12 11:00", End: "2023-10-12 12:00",
 	},
 }
