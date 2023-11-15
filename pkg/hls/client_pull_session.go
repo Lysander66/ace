@@ -80,9 +80,9 @@ func (c *PullSession) run() {
 }
 
 func (c *PullSession) runInner() error {
-	p, body, err := fetchPlaylist(c.httpClient, c.playlistURL.String())
+	p, body, err := FetchPlaylist(c.httpClient, c.playlistURL.String())
 	if err != nil {
-		slog.ErrorContext(c.ctx, "fetchPlaylist", "err", err, "URI", c.playlistURL.String())
+		slog.ErrorContext(c.ctx, "FetchPlaylist", "err", err, "URI", c.playlistURL.String())
 		return err
 	}
 	if c.AfterFirstPlaylistDownload != nil {
@@ -95,20 +95,20 @@ func (c *PullSession) runInner() error {
 	case *playlist.Media: // Media Playlist
 		initialPlaylist = pl
 	case *playlist.Multivariant: // Master Playlist
-		leadingPlaylist := pickLeadingPlaylist(pl.Variants)
+		leadingPlaylist := PickLeadingPlaylist(pl.Variants)
 		if leadingPlaylist == nil {
 			return fmt.Errorf("no variants with supported codecs found")
 		}
 
 		u, err := ClientAbsoluteURL(c.playlistURL, leadingPlaylist.URI)
 		if err != nil {
-			slog.ErrorContext(c.ctx, "clientAbsoluteURL", "err", err, "URI", leadingPlaylist.URI)
+			slog.ErrorContext(c.ctx, "AbsoluteURL", "err", err, "URI", leadingPlaylist.URI)
 			return err
 		}
 
-		pl2, body, err := fetchMediaPlaylist(c.httpClient, u.String())
+		pl2, body, err := FetchMediaPlaylist(c.httpClient, u.String())
 		if err != nil {
-			slog.ErrorContext(c.ctx, "fetchMediaPlaylist", "err", err, "URI", u.String())
+			slog.ErrorContext(c.ctx, "FetchMediaPlaylist", "err", err, "URI", u.String())
 			return err
 		}
 		if c.AfterFirstPlaylistDownload != nil {
@@ -164,9 +164,9 @@ func (c *PullSession) reloadMediaPlaylist() {
 	for {
 		select {
 		case <-timer.C:
-			pl, _, err := fetchMediaPlaylist(c.httpClient, c.playlistURL.String())
+			pl, _, err := FetchMediaPlaylist(c.httpClient, c.playlistURL.String())
 			if err != nil {
-				slog.ErrorContext(c.ctx, "fetchMediaPlaylist", "err", err, "URI", c.playlistURL.String())
+				slog.ErrorContext(c.ctx, "FetchMediaPlaylist", "err", err, "URI", c.playlistURL.String())
 				return
 			}
 
@@ -232,9 +232,9 @@ func (c *PullSession) downloadSegment(seg *playlist.MediaSegment) error {
 		return err
 	}
 
-	data, err := fetchSegment(c.httpClient, u.String())
+	data, err := FetchSegment(c.httpClient, u.String())
 	if err != nil {
-		slog.Error("fetchSegment", "err", err, "URI", u.String())
+		slog.Error("FetchSegment", "err", err, "URI", u.String())
 		return err
 	}
 
@@ -245,8 +245,8 @@ func (c *PullSession) downloadSegment(seg *playlist.MediaSegment) error {
 	return nil
 }
 
-func fetchMediaPlaylist(httpClient *cnet.Client, rawURL string) (*playlist.Media, []byte, error) {
-	pl, body, err := fetchPlaylist(httpClient, rawURL)
+func FetchMediaPlaylist(httpClient *cnet.Client, rawURL string) (*playlist.Media, []byte, error) {
+	pl, body, err := FetchPlaylist(httpClient, rawURL)
 	if err != nil {
 		return nil, body, err
 	}
@@ -259,7 +259,7 @@ func fetchMediaPlaylist(httpClient *cnet.Client, rawURL string) (*playlist.Media
 	return plt, body, nil
 }
 
-func fetchPlaylist(httpClient *cnet.Client, rawURL string) (playlist.Playlist, []byte, error) {
+func FetchPlaylist(httpClient *cnet.Client, rawURL string) (playlist.Playlist, []byte, error) {
 	resp, err := httpClient.R().Get(rawURL)
 	if err != nil {
 		return nil, nil, err
@@ -275,7 +275,7 @@ func fetchPlaylist(httpClient *cnet.Client, rawURL string) (playlist.Playlist, [
 	return pl, resp.Body(), nil
 }
 
-func fetchSegment(httpClient *cnet.Client, rawURL string) ([]byte, error) {
+func FetchSegment(httpClient *cnet.Client, rawURL string) ([]byte, error) {
 	resp, err := httpClient.R().GetWithRetries(rawURL)
 	if err != nil {
 		return nil, err

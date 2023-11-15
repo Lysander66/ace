@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.6 / 2023-11-15
+
+- [ENHANCEMENT] export
+
 ## 0.2.5 / 2023-11-02
 
 - [FEATURE] Playlist

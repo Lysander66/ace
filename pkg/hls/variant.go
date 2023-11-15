@@ -7,13 +7,12 @@ import (
 	"github.com/Lysander66/ace/pkg/playlist"
 )
 
-func pickLeadingPlaylist(variants []*playlist.MultivariantVariant) *playlist.MultivariantVariant {
+func PickLeadingPlaylist(variants []*playlist.MultivariantVariant) *playlist.MultivariantVariant {
 	var candidates []*playlist.MultivariantVariant
 	for _, v := range variants {
-		if !checkSupport(v.Codecs) {
-			continue
+		if checkSupport(v.Codecs) {
+			candidates = append(candidates, v)
 		}
-		candidates = append(candidates, v)
 	}
 	if candidates == nil {
 		return nil
@@ -22,8 +21,7 @@ func pickLeadingPlaylist(variants []*playlist.MultivariantVariant) *playlist.Mul
 	// pick the variant with the greatest bandwidth
 	var leadingPlaylist *playlist.MultivariantVariant
 	for _, v := range candidates {
-		if leadingPlaylist == nil ||
-			v.Bandwidth > leadingPlaylist.Bandwidth {
+		if leadingPlaylist == nil || v.Bandwidth > leadingPlaylist.Bandwidth {
 			leadingPlaylist = v
 		}
 	}
