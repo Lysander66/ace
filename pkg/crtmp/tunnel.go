@@ -126,9 +126,8 @@ func (t *Tunnel) Start() (ret ErrorCode) {
 					for {
 						select {
 						case err := <-s.WaitChan():
+							// 有一个失败不退出
 							nazalog.Errorf("[%s] push wait error. [%s] err=%+v", t.uk, s.UniqueKey(), err)
-							t.notifyPushEc(ErrorCode{ii, err})
-							nazalog.Debugf("[%s] < push event loop. %s", t.uk, s.UniqueKey())
 							return
 						}
 					}
@@ -162,13 +161,25 @@ func (t *Tunnel) Start() (ret ErrorCode) {
 						debugWriteCount++
 					}
 
+					// 有一个失败不退出
+					errIndexes := make(map[int]struct{})
 					for i, pushSession := range t.pushSessionList {
 						err := pushSession.Write(chunks)
 						if err != nil {
-							nazalog.Errorf("[%s] exit main event loop, write error. err=%+v", t.uk, err)
-							t.notifyWait(ErrorCode{i, err})
-							return
+							nazalog.Errorf("[%s] remove %d err=%+v", t.uk, i, err)
+							errIndexes[i] = struct{}{}
+							continue
 						}
+					}
+					if len(errIndexes) > 0 {
+						var tmp []*rtmp.PushSession
+						for i, session := range t.pushSessionList {
+							if _, ok := errIndexes[i]; !ok {
+								tmp = append(tmp, session)
+							}
+						}
+						nazalog.Errorf("[%s] prev %d curr %d", t.uk, len(t.pushSessionList), len(tmp))
+						t.pushSessionList = tmp
 					}
 				case <-ticker.C:
 					t.pullSession.UpdateStat(statIntervalSec)

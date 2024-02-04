@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.7 / 2024-02-04
+
+- [ENHANCEMENT] remove notifyPushEc
+
 ## 0.2.6 / 2023-11-15
 
 - [ENHANCEMENT] export
