@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.8 / 2024-02-20
+
+- [FEATURE] StreamURLGenerator
+
 ## 0.2.7 / 2024-02-04
 
 - [ENHANCEMENT] remove notifyPushEc
