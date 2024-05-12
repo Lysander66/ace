@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/Lysander66/ace/pkg/common"
+	"github.com/Lysander66/ace/pkg/cryptogo"
 )
 
 // WsGeneratort 网宿
@@ -26,7 +26,7 @@ func (w WsGeneratort) HlsPlayUrl(key, app, stream string, exp int64) string {
 func (w WsGeneratort) secret(key, app, stream string, exp int64) string {
 	if key != "" && exp > 0 {
 		wsTime := strconv.FormatInt(exp, 16)
-		wsSecret := common.MD5Sum(fmt.Sprintf("/%s/%s%s%s", app, stream, key, wsTime))
+		wsSecret := cryptogo.MD5Sum(fmt.Sprintf("/%s/%s%s%s", app, stream, key, wsTime))
 		return "?wsSecret=" + wsSecret + "&wsABSTime=" + wsTime
 	}
 	return ""

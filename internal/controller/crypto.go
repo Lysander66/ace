@@ -3,26 +3,26 @@ package controller
 import (
 	"net/http"
 
-	"github.com/Lysander66/ace/pkg/common"
+	"github.com/Lysander66/ace/pkg/cryptogo"
 	"github.com/gin-gonic/gin"
 )
 
 // -------------------------*------------------------- crypto -------------------------#-------------------------
 
 func md5Sum(c *gin.Context) {
-	SucceedResp(c, common.MD5Sum(c.Query("s")))
+	SucceedResp(c, cryptogo.MD5Sum(c.Query("s")))
 }
 
 func sha1Sum(c *gin.Context) {
-	SucceedResp(c, common.SHA1Sum(c.Query("s")))
+	SucceedResp(c, cryptogo.SHA1Sum(c.Query("s")))
 }
 
 func sha256Sum(c *gin.Context) {
-	SucceedResp(c, common.SHA256Sum(c.Query("s")))
+	SucceedResp(c, cryptogo.SHA256Sum(c.Query("s")))
 }
 
 func sha512Sum(c *gin.Context) {
-	SucceedResp(c, common.SHA512Sum(c.Query("s")))
+	SucceedResp(c, cryptogo.SHA512Sum(c.Query("s")))
 }
 
 // -------------------------*------------------------- response -------------------------#-------------------------

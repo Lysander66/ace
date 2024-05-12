@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Lysander66/ace/pkg/common"
+	"github.com/Lysander66/ace/pkg/cryptogo"
 )
 
 // TxGeneratort 腾讯
@@ -27,7 +27,7 @@ func (t TxGeneratort) HlsPlayUrl(key, app, stream string, exp int64) string {
 func (t TxGeneratort) secret(key, stream string, exp int64) string {
 	if key != "" && exp > 0 {
 		txTime := strings.ToUpper(strconv.FormatInt(exp, 16))
-		txSecret := common.MD5Sum(key + stream + txTime)
+		txSecret := cryptogo.MD5Sum(key + stream + txTime)
 		return "?txSecret=" + txSecret + "&txTime=" + txTime
 	}
 	return ""
