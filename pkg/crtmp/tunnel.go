@@ -166,7 +166,7 @@ func (t *Tunnel) Start() (ret ErrorCode) {
 					for i, pushSession := range t.pushSessionList {
 						err := pushSession.Write(chunks)
 						if err != nil {
-							nazalog.Errorf("[%s] remove %d err=%+v", t.uk, i, err)
+							nazalog.Errorf("[%s] remove %d %s err=%+v", t.uk, i, t.outUrlList[i], err)
 							errIndexes[i] = struct{}{}
 							continue
 						}
