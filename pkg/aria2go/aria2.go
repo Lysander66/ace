@@ -1,7 +1,17 @@
 package aria2go
 
 import (
+	"encoding/json"
+	"log/slog"
+	"net/url"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
 	"github.com/Lysander66/ace/pkg/jsonrpc"
+	"github.com/gorilla/websocket"
+	"github.com/tidwall/gjson"
 )
 
 const (
@@ -43,6 +53,29 @@ const (
 	methodListNotifications    = "system.listNotifications"
 )
 
+type GlobalStat struct {
+	DownloadSpeed   string `json:"downloadSpeed"`
+	NumActive       string `json:"numActive"`
+	NumStopped      string `json:"numStopped"`
+	NumStoppedTotal string `json:"numStoppedTotal"`
+	NumWaiting      string `json:"numWaiting"`
+	UploadSpeed     string `json:"uploadSpeed"`
+}
+
+type Event struct {
+	Gid string `json:"gid"`
+}
+
+// Notifier handles rpc notification from aria2 server
+type Notifier interface {
+	OnDownloadStart([]Event)
+	OnDownloadPause([]Event)
+	OnDownloadStop([]Event)
+	OnDownloadComplete([]Event)
+	OnDownloadError([]Event)
+	OnBtDownloadComplete([]Event)
+}
+
 type Client struct {
 	secret    string
 	rpcClient *jsonrpc.Client
@@ -50,12 +83,91 @@ type Client struct {
 
 type Option func(o *Client)
 
-func NewClient(endpoint, rpcSecret string) *Client {
+func NewClient(endpoint, rpcSecret string, notifier Notifier) (*Client, error) {
+	u, err := url.Parse(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
 	c := &Client{
 		secret:    rpcSecret,
 		rpcClient: jsonrpc.NewClient(endpoint),
 	}
-	return c
+
+	if notifier != nil {
+		u.Scheme = "ws"
+		go c.setNotifier(u.String(), notifier)
+	}
+	return c, nil
+}
+
+func (c *Client) setNotifier(endpoint string, notifier Notifier) {
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt, os.Kill, syscall.SIGTERM)
+
+	conn, _, err := websocket.DefaultDialer.Dial(endpoint, nil)
+	if err != nil {
+		slog.Error("websocket.Dial", "err", err)
+		return
+	}
+	defer conn.Close()
+
+	done := make(chan struct{})
+
+	go func() {
+		defer close(done)
+		for {
+			_, message, err := conn.ReadMessage()
+			if err != nil {
+				slog.Error("read:", "err", err)
+				return
+			}
+			method := gjson.GetBytes(message, "method").String()
+			if method != "" {
+				var params []Event
+				if err = json.Unmarshal([]byte(gjson.GetBytes(message, "params").String()), &params); err != nil {
+					slog.Error("read:", "err", err, "message", message)
+					return
+				}
+				switch method {
+				case "aria2.onDownloadStart":
+					notifier.OnDownloadStart(params)
+				case "aria2.onDownloadPause":
+					notifier.OnDownloadPause(params)
+				case "aria2.onDownloadStop":
+					notifier.OnDownloadStop(params)
+				case "aria2.onDownloadComplete":
+					notifier.OnDownloadComplete(params)
+				case "aria2.onDownloadError":
+					notifier.OnDownloadError(params)
+				case "aria2.onBtDownloadComplete":
+					notifier.OnBtDownloadComplete(params)
+				}
+			} else {
+				slog.Info("recv: " + string(message))
+			}
+		}
+	}()
+
+	for {
+		select {
+		case <-done:
+			return
+		case <-interrupt:
+			slog.Info("interrupt")
+			// Cleanly close the connection by sending a close message and then waiting (with timeout) for the server to close the connection.
+			err := conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			if err != nil {
+				slog.Error("write close:", "err", err)
+				return
+			}
+			select {
+			case <-done:
+			case <-time.After(time.Second):
+			}
+			return
+		}
+	}
 }
 
 func (c *Client) token() string {
@@ -64,7 +176,7 @@ func (c *Client) token() string {
 
 // AddURI
 // https://aria2.github.io/manual/en/html/aria2c.html#aria2.addUri
-func (c *Client) AddURI(id string, uris []string, options ...any) (string, error) {
+func (c *Client) AddURI(uris []string, options ...any) (string, error) {
 	var params []any
 	if c.secret != "" {
 		params = append(params, c.token())
@@ -74,7 +186,7 @@ func (c *Client) AddURI(id string, uris []string, options ...any) (string, error
 		params = append(params, options...)
 	}
 
-	req := jsonrpc.NewRequest(methodAddUri, params, id)
+	req := jsonrpc.NewRequest(methodAddUri, params, time.Now().UnixNano())
 	resp, err := c.rpcClient.Call(req)
 	if err != nil {
 		return "", err
@@ -83,11 +195,26 @@ func (c *Client) AddURI(id string, uris []string, options ...any) (string, error
 	return resp.GetString()
 }
 
-func (c *Client) ListMethods(id string) (methods []string, err error) {
-	req := jsonrpc.NewRequest(methodListMethods, nil, id)
+func (c *Client) GetGlobalStat() (stat GlobalStat, err error) {
+	var params []any
+	if c.secret != "" {
+		params = append(params, c.token())
+	}
+	req := jsonrpc.NewRequest(methodGetGlobalStat, params, time.Now().UnixNano())
 	resp, err := c.rpcClient.Call(req)
 	if err != nil {
-		return nil, err
+		return
+	}
+
+	err = resp.GetAny(&stat)
+	return
+}
+
+func (c *Client) ListMethods() (methods []string, err error) {
+	req := jsonrpc.NewRequest(methodListMethods, nil, time.Now().UnixNano())
+	resp, err := c.rpcClient.Call(req)
+	if err != nil {
+		return
 	}
 
 	err = resp.GetAny(&methods)

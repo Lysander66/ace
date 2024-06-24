@@ -67,10 +67,6 @@ func NewRequest[T RequestID](method string, params any, id T) *Request {
 	return &Request{Version: version2, Method: method, Params: params, ID: id}
 }
 
-func NewNotification(method string, params any) *Notification {
-	return &Notification{Version: version2, Method: method, Params: params}
-}
-
 type Client struct {
 	endpoint   string
 	httpClient *http.Client

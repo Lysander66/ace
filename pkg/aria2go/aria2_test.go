@@ -1,14 +1,20 @@
 package aria2go
 
 import (
+	"log"
 	"testing"
 )
 
-const (
-	endpoint  = "http://localhost:6800/jsonrpc"
-	rpcSecret = ""
-	id        = "test"
-)
+var testClient, _ = NewClient("http://localhost:6800/jsonrpc", "", nil)
+
+type DummyNotifier struct{}
+
+func (DummyNotifier) OnDownloadStart(events []Event)      { log.Printf("%s started.", events) }
+func (DummyNotifier) OnDownloadPause(events []Event)      { log.Printf("%s paused.", events) }
+func (DummyNotifier) OnDownloadStop(events []Event)       { log.Printf("%s stopped.", events) }
+func (DummyNotifier) OnDownloadComplete(events []Event)   { log.Printf("%s completed.", events) }
+func (DummyNotifier) OnDownloadError(events []Event)      { log.Printf("%s error.", events) }
+func (DummyNotifier) OnBtDownloadComplete(events []Event) { log.Printf("bt %s completed.", events) }
 
 func TestClient_AddURI(t *testing.T) {
 	var (
@@ -25,19 +31,29 @@ func TestClient_AddURI(t *testing.T) {
 		}
 	)
 
-	client := NewClient(endpoint, rpcSecret)
-	gid, err := client.AddURI(id, uris, options)
+	client, _ := NewClient("http://localhost:6800/jsonrpc", "rpcSecret", DummyNotifier{})
+	gid, err := client.AddURI(uris, options)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log("gid", gid)
+
+	select {}
+}
+
+func TestClient_GetGlobalStat(t *testing.T) {
+	globalStat, err := testClient.GetGlobalStat()
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	t.Log(gid)
+	t.Logf("%+v\n", globalStat)
 }
 
 func TestClient_ListMethods(t *testing.T) {
-	client := NewClient(endpoint, rpcSecret)
-	methods, err := client.ListMethods(id)
+	methods, err := testClient.ListMethods()
 	if err != nil {
 		t.Error(err)
 		return
