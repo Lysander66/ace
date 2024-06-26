@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.9 / 2024-06-26
+
+- [FEATURE] aria2
+
 ## 0.2.8 / 2024-02-20
 
 - [FEATURE] StreamURLGenerator

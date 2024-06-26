@@ -1,11 +1,15 @@
 package aria2go
 
 import (
+	"encoding/json"
 	"log"
 	"testing"
 )
 
-var testClient, _ = NewClient("http://localhost:6800/jsonrpc", "", nil)
+var (
+	rpcSecret     = ""
+	testClient, _ = NewClient("http://localhost:6800/jsonrpc", rpcSecret, nil)
+)
 
 type DummyNotifier struct{}
 
@@ -28,11 +32,14 @@ func TestClient_AddURI(t *testing.T) {
 			"https-proxy":               "http://127.0.0.1:7890",
 			"split":                     5,
 			"max-connection-per-server": 1,
+			"header": []string{
+				"user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+				"cookie: cookie_str_123",
+			},
 		}
 	)
 
-	client, _ := NewClient("http://localhost:6800/jsonrpc", "rpcSecret", DummyNotifier{})
-	gid, err := client.AddURI(uris, options)
+	gid, err := testClient.AddURI(uris, options, &DummyNotifier{})
 	if err != nil {
 		t.Error(err)
 		return
@@ -40,6 +47,27 @@ func TestClient_AddURI(t *testing.T) {
 	t.Log("gid", gid)
 
 	select {}
+}
+
+func TestClient_TellStatus(t *testing.T) {
+	statusInfo, err := testClient.TellStatus("c28fd51f7b429579", "gid", "status")
+	if err != nil {
+		t.Log(err)
+		return
+	}
+
+	t.Log(statusInfo.Gid, statusInfo.Status)
+}
+
+func TestClient_TellStopped(t *testing.T) {
+	list, err := testClient.TellStopped(0, 100, "errorCode", "errorMessage", "gid", "status")
+	if err != nil {
+		t.Log(err)
+		return
+	}
+
+	b, _ := json.Marshal(list)
+	t.Logf("%s\n", b)
 }
 
 func TestClient_GetGlobalStat(t *testing.T) {

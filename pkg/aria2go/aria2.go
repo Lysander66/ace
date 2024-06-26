@@ -66,6 +66,33 @@ type Event struct {
 	Gid string `json:"gid"`
 }
 
+type StatusInfo struct {
+	CompletedLength string `json:"completedLength"`
+	Connections     string `json:"connections"`
+	Dir             string `json:"dir"`
+	DownloadSpeed   string `json:"downloadSpeed"`
+	ErrorCode       string `json:"errorCode"`
+	ErrorMessage    string `json:"errorMessage"`
+	Files           []struct {
+		CompletedLength string `json:"completedLength"`
+		Index           string `json:"index"`
+		Length          string `json:"length"`
+		Path            string `json:"path"`
+		Selected        string `json:"selected"`
+		Uris            []struct {
+			Status string `json:"status"`
+			Uri    string `json:"uri"`
+		} `json:"uris"`
+	} `json:"files"`
+	Gid          string `json:"gid"`
+	NumPieces    string `json:"numPieces"`
+	PieceLength  string `json:"pieceLength"`
+	Status       string `json:"status"`
+	TotalLength  string `json:"totalLength"`
+	UploadLength string `json:"uploadLength"`
+	UploadSpeed  string `json:"uploadSpeed"`
+}
+
 // Notifier handles rpc notification from aria2 server
 type Notifier interface {
 	OnDownloadStart([]Event)
@@ -193,6 +220,46 @@ func (c *Client) AddURI(uris []string, options ...any) (string, error) {
 	}
 
 	return resp.GetString()
+}
+
+// TellStatus | active waiting paused error complete removed
+// https://aria2.github.io/manual/en/html/aria2c.html#aria2.tellStatus
+func (c *Client) TellStatus(gid string, keys ...string) (statusInfo StatusInfo, err error) {
+	var params []any
+	if c.secret != "" {
+		params = append(params, c.token())
+	}
+	params = append(params, gid)
+	if keys != nil {
+		params = append(params, keys)
+	}
+	req := jsonrpc.NewRequest(methodTellStatus, params, time.Now().UnixNano())
+	resp, err := c.rpcClient.Call(req)
+	if err != nil {
+		return
+	}
+
+	err = resp.GetAny(&statusInfo)
+	return
+}
+
+func (c *Client) TellStopped(offset, num int, keys ...string) (list []StatusInfo, err error) {
+	var params []any
+	if c.secret != "" {
+		params = append(params, c.token())
+	}
+	params = append(params, offset, num)
+	if keys != nil {
+		params = append(params, keys)
+	}
+	req := jsonrpc.NewRequest(methodTellStopped, params, time.Now().UnixNano())
+	resp, err := c.rpcClient.Call(req)
+	if err != nil {
+		return
+	}
+
+	err = resp.GetAny(&list)
+	return
 }
 
 func (c *Client) GetGlobalStat() (stat GlobalStat, err error) {
