@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Lysander66/ace/pkg/common/cnet"
 	"github.com/Lysander66/ace/pkg/playlist"
+	"github.com/Lysander66/zephyr/pkg/znet"
 )
 
 var errInvalidPlaylist = fmt.Errorf("invalid playlist")
@@ -21,7 +21,7 @@ type PullSession struct {
 	AfterFirstPlaylistDownload AfterFirstPlaylistDownloadFunc
 	AfterDownloadSegment       ClientAfterDownloadSegmentFunc
 	numParallel                int
-	httpClient                 *cnet.Client
+	httpClient                 *znet.Client
 	ctx                        context.Context
 	ctxCancel                  func()
 	playlistURL                *url.URL
@@ -31,7 +31,7 @@ type PullSession struct {
 	outErr                     chan error
 }
 
-func NewPullSession(uri string, hc *cnet.Client, afterDownloadSegment ClientAfterDownloadSegmentFunc) *PullSession {
+func NewPullSession(uri string, hc *znet.Client, afterDownloadSegment ClientAfterDownloadSegmentFunc) *PullSession {
 	c := &PullSession{
 		URI:                  uri,
 		AfterDownloadSegment: afterDownloadSegment,
@@ -53,7 +53,7 @@ func (c *PullSession) Start() error {
 	}
 
 	if c.httpClient == nil {
-		c.httpClient = cnet.New()
+		c.httpClient = znet.New()
 	}
 
 	c.ctx, c.ctxCancel = context.WithCancel(context.Background())
@@ -245,7 +245,7 @@ func (c *PullSession) downloadSegment(seg *playlist.MediaSegment) error {
 	return nil
 }
 
-func FetchMediaPlaylist(httpClient *cnet.Client, rawURL string) (*playlist.Media, []byte, error) {
+func FetchMediaPlaylist(httpClient *znet.Client, rawURL string) (*playlist.Media, []byte, error) {
 	pl, body, err := FetchPlaylist(httpClient, rawURL)
 	if err != nil {
 		return nil, body, err
@@ -259,7 +259,7 @@ func FetchMediaPlaylist(httpClient *cnet.Client, rawURL string) (*playlist.Media
 	return plt, body, nil
 }
 
-func FetchPlaylist(httpClient *cnet.Client, rawURL string) (playlist.Playlist, []byte, error) {
+func FetchPlaylist(httpClient *znet.Client, rawURL string) (playlist.Playlist, []byte, error) {
 	resp, err := httpClient.R().Get(rawURL)
 	if err != nil {
 		return nil, nil, err
@@ -275,7 +275,7 @@ func FetchPlaylist(httpClient *cnet.Client, rawURL string) (playlist.Playlist, [
 	return pl, resp.Body(), nil
 }
 
-func FetchSegment(httpClient *cnet.Client, rawURL string) ([]byte, error) {
+func FetchSegment(httpClient *znet.Client, rawURL string) ([]byte, error) {
 	resp, err := httpClient.R().GetWithRetries(rawURL)
 	if err != nil {
 		return nil, err

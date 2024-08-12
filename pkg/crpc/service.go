@@ -8,10 +8,10 @@ import (
 	"os/signal"
 
 	"github.com/Lysander66/ace/pkg/common"
-	"github.com/Lysander66/ace/pkg/common/cnet"
 	"github.com/Lysander66/ace/pkg/crpc/sd"
 	"github.com/Lysander66/ace/pkg/crpc/sd/etcdv3"
 	"github.com/Lysander66/ace/pkg/crpc/server"
+	"github.com/Lysander66/zephyr/pkg/znet"
 	"google.golang.org/grpc"
 )
 
@@ -30,7 +30,7 @@ func (s *Service) Server() *server.Server { return s.opts.server }
 func NewService(opts ...Option) *Service {
 	o := options{
 		ctx:            context.Background(),
-		getMachineIPFn: cnet.IntranetIP,
+		getMachineIPFn: znet.IntranetIP,
 	}
 	for _, opt := range opts {
 		opt(&o)

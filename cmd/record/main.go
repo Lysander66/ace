@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Lysander66/ace/pkg/common/cnet"
 	"github.com/Lysander66/ace/pkg/hls"
 	"github.com/Lysander66/ace/pkg/logger"
 	"github.com/Lysander66/ace/pkg/playlist"
+	"github.com/Lysander66/zephyr/pkg/znet"
 	"github.com/cheggaaa/pb/v3"
 )
 
@@ -49,7 +49,7 @@ func download(rawURL, dir string, n int) {
 
 	var bar *pb.ProgressBar
 
-	client := cnet.New()
+	client := znet.New()
 	pullSession := hls.NewPullSession(rawURL, client, func(seg *playlist.MediaSegment, buf []byte) {
 		name := seg.URI
 		if index := strings.Index(seg.URI, "?"); index != -1 {

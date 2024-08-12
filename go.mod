@@ -1,8 +1,9 @@
 module github.com/Lysander66/ace
 
-go 1.21.0
+go 1.21
 
 require (
+	github.com/Lysander66/zephyr v0.5.0
 	github.com/cheggaaa/pb/v3 v3.1.4
 	github.com/gin-contrib/cors v1.4.0
 	github.com/gin-contrib/pprof v1.4.0
@@ -11,7 +12,6 @@ require (
 	github.com/q191201771/lal v0.36.7
 	github.com/q191201771/naza v0.30.48
 	github.com/stretchr/testify v1.8.4
-	github.com/tidwall/gjson v1.17.1
 	github.com/yapingcat/gomedia v0.0.0-20231006155242-67da098615ee
 	go.etcd.io/etcd/client/pkg/v3 v3.5.9
 	go.etcd.io/etcd/client/v3 v3.5.9
@@ -46,8 +46,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
-	github.com/tidwall/match v1.1.1 // indirect
-	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.9 // indirect
