@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0 / 2024-08-12
+
+- [CHANGE] remove code
+
 ## 0.2.9 / 2024-06-26
 
 - [FEATURE] aria2
