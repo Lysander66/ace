@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/Lysander66/ace/internal/controller"
-	"github.com/Lysander66/ace/pkg/logger"
+	"github.com/Lysander66/zephyr/pkg/logger"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"

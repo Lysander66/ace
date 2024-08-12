@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/Lysander66/ace/pkg/hls"
-	"github.com/Lysander66/ace/pkg/logger"
 	"github.com/Lysander66/ace/pkg/playlist"
+	"github.com/Lysander66/zephyr/pkg/logger"
 	"github.com/Lysander66/zephyr/pkg/znet"
 	"github.com/cheggaaa/pb/v3"
 )

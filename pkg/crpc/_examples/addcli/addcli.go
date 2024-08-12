@@ -9,7 +9,7 @@ import (
 
 	"github.com/Lysander66/ace/pkg/crpc"
 	"github.com/Lysander66/ace/pkg/crpc/_examples/pb"
-	"github.com/Lysander66/ace/pkg/logger"
+	"github.com/Lysander66/zephyr/pkg/logger"
 )
 
 const HelloService = "hello"
