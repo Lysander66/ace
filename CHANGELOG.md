@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1 / 2025-01-09
+
+- [FEATURE] etcd sync
+
 ## 0.3.0 / 2024-08-12
 
 - [CHANGE] remove code
